@@ -29,7 +29,7 @@ setup (
     python_requires=">=3.8",
     long_description="Pamps is a social posting app",
     long_description_content_type="text/markdown",
-    author="DM45",
+    author="DM45$",
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     install_requires=read_requirements("requirements.txt"),
