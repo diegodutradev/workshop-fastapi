@@ -1,6 +1,7 @@
 import os
 
 from dynaconf import Dynaconf
+from dynaconf import settings
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
