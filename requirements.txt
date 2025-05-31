@@ -102,3 +102,5 @@ typing-inspection==0.4.1
     # via pydantic
 uvicorn==0.34.2
     # via -r requirements.in
+
+pydantic[email]

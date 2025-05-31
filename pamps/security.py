@@ -26,6 +26,14 @@ class HashedPassword(str):
     """Takes a plain text password and hashes it."""
 
     @classmethod
+    def hash(cls, value: str) -> "HashedPassword":
+        """Hashes a plain text password into HashedPassword"""
+        if not isinstance(value, str):
+            raise TypeError("string required")
+        hashed = get_password_hash(value)
+        return cls(hashed)
+
+    @classmethod
     def __get_pydantic_core_schema__(cls, source, handler: GetCoreSchemaHandler):
         return core_schema.no_info_before_validator_function(
             cls.validate,
@@ -34,6 +42,7 @@ class HashedPassword(str):
 
     @classmethod
     def validate(cls, value: str, info: ValidationInfo) -> "HashedPassword":
+        """Pydantic automatic validator"""
         if not isinstance(value, str):
             raise TypeError("string required")
         hashed = get_password_hash(value)

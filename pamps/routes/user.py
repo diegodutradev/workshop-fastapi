@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 
 from pamps.db import ActiveSession
 from pamps.models.user import User, UserRequest, UserResponse
+from pamps.security import HashedPassword
 
 router = APIRouter()
 
@@ -18,9 +19,7 @@ async def list_users(*, session: Session = ActiveSession):
 
 
 @router.get("/{username}/", response_model=UserResponse)
-async def get_user_by_username(
-    *, session: Session = ActiveSession, username: str
-    ):
+async def get_user_by_username(*, session: Session = ActiveSession, username: str):
     """Get user by username"""
     query = select(User).where(User.username == username)
     user = session.exec(query).first()
@@ -32,7 +31,7 @@ async def get_user_by_username(
 @router.post("/", response_model=UserResponse, status_code=201)
 async def create_user(*, session: Session = ActiveSession, user: UserRequest):
     """Creates new user"""
-    db_user = User.from_orm(user) # transform UserRequest in User
+    db_user = user.to_user()
     session.add(db_user)
     session.commit()
     session.refresh(db_user)

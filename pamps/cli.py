@@ -6,7 +6,7 @@ from pamps.security import HashedPassword
 
 from .config import settings
 from .db import engine
-from .models import User
+from .models import User, Post, SQLModel
 
 main = typer.Typer(name="Pamps CLI")
 
@@ -20,17 +20,14 @@ def shell():
         "select": select,
         "session": Session(engine),
         "User": User,
+        "Post": Post,
     }
     typer.echo(f"Auto imports: {list(_vars.keys())}")
     try:
         from IPython import start_ipython
-
-        start_ipython(
-        argv=["--ipython-dir=/tmp", "--no-banner"], user_ns=_vars
-        )
+        start_ipython(argv=["--ipython-dir=/tmp", "--no-banner"], user_ns=_vars)
     except ImportError:
         import code
-        
         code.InteractiveConsole(_vars).interact()
 
 
@@ -53,9 +50,20 @@ def user_list():
 @main.command()
 def create_user(email: str, username: str, password: str):
     """Create user"""
-    hashed_pw = HashedPassword.validate(password)  # <- executa o hash manualmente
+    hashed_pw = HashedPassword.hash(password)  # <- Forma correta
     user = User(email=email, username=username, password=hashed_pw)
     with Session(engine) as session:
         session.add(user)
         session.commit()
         typer.echo(f"created {username} user")
+
+@main.command()
+def reset_db(
+    force: bool = typer.Option(
+        False, "--force", "-f", help="Run with no confirmation"
+    )
+):
+    """Resets the database tables"""
+    force = force or typer.confirm("Are you sure?")
+    if force:
+        SQLModel.metadata.drop_all(engine)
